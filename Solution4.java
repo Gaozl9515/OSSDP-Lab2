@@ -7,8 +7,6 @@ import java.util.Arrays;
  *
  * 您必须编写一个在「线性时间」内运行并使用「线性额外空间」的算法。
  *
- *
- *
  * 示例 1:
  *
  * 输入: nums = [3,6,9,1]
@@ -20,7 +18,6 @@ import java.util.Arrays;
  * 输出: 0
  * 解释: 数组元素个数小于 2，因此返回 0。
  *
- *
  * 提示:
  *
  * 1 <= nums.length <= 105
@@ -29,35 +26,50 @@ import java.util.Arrays;
  */
 class Solution4 {
     public int maximumGap(int[] nums) {
-
-        int n = nums.length - 1;
+        int n = nums.length;
         if (n < 2) {
             return 0;
         }
-        long exp = 1;
-        int[] buf = new int[n];
-        int maxVal = Arrays.stream(nums).max().getAsInt();
 
-        while (maxVal > exp) {
+        int maxVal = Arrays.stream(nums).max().getAsInt();
+        int exp = 1;
+        int[] buf = new int[n];
+
+        // 使用基数排序处理数组
+        while (maxVal / exp > 0) {
             int[] cnt = new int[10];
+
+            // 计数排序的部分
             for (int i = 0; i < n; i++) {
-                int digit = (nums[i] / (int) exp) % 10;
+                int digit = (nums[i] / exp) % 10;
                 cnt[digit]++;
             }
-            for (int i = 1; i < 10; i++){
+
+            // 累加计数数组，确定每个桶的边界
+            for (int i = 1; i < 10; i++) {
                 cnt[i] += cnt[i - 1];
+            }
+
+            // 倒序遍历原数组，进行排序
             for (int i = n - 1; i >= 0; i--) {
-                int digit = (nums[i] / (int) exp) % 10;
+                int digit = (nums[i] / exp) % 10;
                 buf[cnt[digit] - 1] = nums[i];
                 cnt[digit]--;
             }
+
+            // 将排好序的数组拷贝回原数组
             System.arraycopy(buf, 0, nums, 0, n);
-            exp += 10;
+
+            // 扩大 exp，处理更高位
+            exp *= 10;
         }
 
+        // 计算相邻元素之间的最大差值
         int ret = 0;
-            for (int i = 1; i < n; i++) {
+        for (int i = 1; i < n; i++) {
             ret = Math.max(ret, nums[i] - nums[i - 1]);
-        }return ret;
+        }
+
+        return ret;
     }
 }
